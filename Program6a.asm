@@ -51,37 +51,37 @@ ENDM
 
 
 .data
-	intro_1			BYTE	"Demonstrating low-level I/O Procedures",0
-	intro_2			BYTE	"Programmed by Dan Negovan",0
-	intro_3			BYTE	"Please provide 10 decimal integers.",0
-	intro_4			BYTE	"Each number needs to be small enough to fit inside a 32 bit register.",0
-	intro_5			BYTE	"After you have finished inputting the raw numbers I will display",
-							" a list of the integers, their sum, and their average value.",0
-	prompt			BYTE	"Please enter an integer number: ",0  	
-	numArray		DWORD	ARRAY_SIZE DUP(0)		;to hold entered values
-	tempString		BYTE	STR_SIZE DUP(?)
+	intro_1		BYTE	"Demonstrating low-level I/O Procedures",0
+	intro_2		BYTE	"Programmed by Dan Negovan",0
+	intro_3		BYTE	"Please provide 10 decimal integers.",0
+	intro_4		BYTE	"Each number needs to be small enough to fit inside a 32 bit register.",0
+	intro_5		BYTE	"After you have finished inputting the raw numbers I will display",
+				" a list of the integers, their sum, and their average value.",0
+	prompt		BYTE	"Please enter an integer number: ",0  	
+	numArray	DWORD	ARRAY_SIZE DUP(0)		;to hold entered values
+	tempString	BYTE	STR_SIZE DUP(?)
 	title_entered	BYTE	"You entered the following numbers:",0
-	comma			BYTE	", ",0
-	title_sum		BYTE	"The sum of these numbers is: ",0
-	title_avg		BYTE	"The average is: ",0
-	sum				DWORD	?
-	avg				DWORD	?
-	error			BYTE	"ERROR: You did not enter an integer number or your number was too big.",0
-	bye				BYTE	"Thank you! Goodbye.",0
+	comma		BYTE	", ",0
+	title_sum	BYTE	"The sum of these numbers is: ",0
+	title_avg	BYTE	"The average is: ",0
+	sum		DWORD	?
+	avg		DWORD	?
+	error		BYTE	"ERROR: You did not enter an integer number or your number was too big.",0
+	bye		BYTE	"Thank you! Goodbye.",0
 
 
 .code
 main PROC
 	call	Intro
 				
-	mov		edi, OFFSET numArray		;fill array with nums using ReadVal		
-	mov		ecx, LENGTHOF numArray		;set up fill array loop
+	mov	edi, OFFSET numArray				;fill array with nums using ReadVal		
+	mov	ecx, LENGTHOF numArray				;set up fill array loop
 fillArray:		
-	push	edi							;3 vars on stack for ReadVal
+	push	edi						;3 vars on stack for ReadVal
 	push	OFFSET prompt
 	push	OFFSET tempString
 	call	ReadVal	
-	add		edi, TYPE numArray			;increment array position
+	add	edi, TYPE numArray				;increment array position
 	loop	fillArray					
 	
 	push	OFFSET avg					;calculate the avg, sum 
@@ -90,23 +90,23 @@ fillArray:
 	call	CalcStats
 
 	call	CrLf
-	displayString OFFSET title_entered	;display contents of array
+	displayString OFFSET title_entered			;display contents of array
 	call	CrLf
-	mov		esi, OFFSET numArray		
-	mov		ecx, ARRAY_SIZE
+	mov	esi, OFFSET numArray		
+	mov	ecx, ARRAY_SIZE
 displayArray:	
-	push	esi							;2 vars on stack for WriteVal
+	push	esi						;2 vars on stack for WriteVal
 	push	OFFSET tempString
 	call	WriteVal
-	cmp		ecx, 1						;don't put a comma after last #
-	je		afterComma
+	cmp	ecx, 1						;don't put a comma after last #
+	je	afterComma
 	displayString	OFFSET comma
 afterComma:
-	add		esi, TYPE numArray
+	add	esi, TYPE numArray
 	loop	displayArray
 
 	call	CrLf
-	displayString	OFFSET title_sum	;display stats
+	displayString	OFFSET title_sum			;display stats
 	push	OFFSET	sum
 	push	OFFSET	tempString
 	call	WriteVal
@@ -162,49 +162,49 @@ Intro	ENDP
 localVar EQU DWORD PTR [ebp-4]			
 
 ReadVal PROC	
-	push	ebp							;set up stack frame
-	mov		ebp,esp
-	sub		esp, 4						;create local variable
-	pushad								;save registers
+	push	ebp						;set up stack frame
+	mov	ebp,esp
+	sub	esp, 4						;create local variable
+	pushad							;save registers
 
-	mov		edi, [ebp+16]				;@ to store int
+	mov	edi, [ebp+16]					;@ to store int
 promptUser:			
-	getString [ebp+12],[ebp+8] 			;get string from user													
-	mov		esi, [ebp+8]				;address of userString
-	add		esi, eax					;points to the 0 byte
-	sub		esi, 1						;points to end of string
-	mov		ecx, eax					;set up string loop counter
-	mov		localVar, 1					;set up power of 10 multiplier
+	getString [ebp+12],[ebp+8] 				;get string from user													
+	mov	esi, [ebp+8]					;address of userString
+	add	esi, eax					;points to the 0 byte
+	sub	esi, 1						;points to end of string
+	mov	ecx, eax					;set up string loop counter
+	mov	localVar, 1					;set up power of 10 multiplier
 
-	std									;move backwards through string
+	std							;move backwards through string
 stringLoop:	
-	mov		eax, 0						;clear eax so al value will be zero extended
+	mov	eax, 0						;clear eax so al value will be zero extended
 	lodsb
-	cmp		al, ASCII_0					;validate
-	jl		badInput
-	cmp		al, ASCII_9
-	jg		badInput
-	sub		al, ASCII_0					;convert ascii to its digit
-	mul		localVar					;multiply digit by power of 10
-	add		[edi], eax					;add to current in-progress value
-	jc		badInput					;number is too big if carry flag gets set
-	mov		eax, localVar				;multiplier x10 for next loop
-	mov		ebx, 10
-	mul		ebx
-	mov		localVar, eax
+	cmp	al, ASCII_0					;validate
+	jl	badInput
+	cmp	al, ASCII_9
+	jg	badInput
+	sub	al, ASCII_0					;convert ascii to its digit
+	mul	localVar					;multiply digit by power of 10
+	add	[edi], eax					;add to current in-progress value
+	jc	badInput					;number is too big if carry flag gets set
+	mov	eax, localVar					;multiplier x10 for next loop
+	mov	ebx, 10
+	mul	ebx
+	mov	localVar, eax
 	loop	stringLoop		
 	
-	jmp		stringFinished
+	jmp	stringFinished
 badInput:
 	displayString OFFSET error
 	call	CrLf
-	jmp		promptUser
+	jmp	promptUser
 
 stringFinished:
-	popad								;restore registers
-	mov		esp, ebp					;remove local variable from stack
-	pop		ebp							;restore stack
-	ret		12
+	popad							;restore registers
+	mov	esp, ebp					;remove local variable from stack
+	pop	ebp						;restore stack
+	ret	12
 ReadVal ENDP
 
 
@@ -220,30 +220,30 @@ ReadVal ENDP
 ;registers changed: none
 ;---------------------------------------------------------
 CalcStats PROC	
-	push	ebp							;set up stack frame
-	mov		ebp,esp
-	pushad								;save registers
+	push	ebp						;set up stack frame
+	mov	ebp,esp
+	pushad							;save registers
 
-	mov		esi, [ebp+8]				;@ of array			
-	mov		eax, 0						;blank slate for sum
-	mov		ecx, ARRAY_SIZE				;loop counter
+	mov	esi, [ebp+8]					;@ of array			
+	mov	eax, 0						;blank slate for sum
+	mov	ecx, ARRAY_SIZE					;loop counter
 sumLoop:	
-	mov		ebx, [esi]
-	add		eax, ebx
-	add		esi, 4	
+	mov	ebx, [esi]
+	add	eax, ebx
+	add	esi, 4	
 	loop	sumLoop
 
-	mov		ebx,[ebp+12]
-	mov		[ebx], eax					;store sum
-	mov		ebx, ARRAY_SIZE				;calc avg
-	mov		edx, 0
-	div		ebx
-	mov		ebx, [ebp+16]
-	mov		[ebx], eax					;store avg
+	mov	ebx,[ebp+12]
+	mov	[ebx], eax					;store sum
+	mov	ebx, ARRAY_SIZE					;calc avg
+	mov	edx, 0
+	div	ebx
+	mov	ebx, [ebp+16]
+	mov	[ebx], eax					;store avg
 
-	popad								;restore registers
-	pop		ebp							;restore stack
-	ret		12
+	popad							;restore registers
+	pop	ebp						;restore stack
+	ret	12	
 CalcStats ENDP
 
 
@@ -259,37 +259,37 @@ CalcStats ENDP
 ;registers changed: none
 ;---------------------------------------------------------
 WriteVal PROC	
-	push	ebp							;set up stack frame
-	mov		ebp,esp
-	pushad								;save registers
+	push	ebp						;set up stack frame
+	mov	ebp,esp
+	pushad							;save registers
 	
-	mov		edi, [ebp+8]				;to store converted string
-	add		edi, STR_SIZE-1				;start from the end
-	std									;move backwards 
-	mov		al, 0
-	stosb								;null terminator for string
-	mov		ebx, [ebp+12]				;@ of # to be converted
-	mov		eax, [ebx]					;# to be converted
+	mov	edi, [ebp+8]					;to store converted string
+	add	edi, STR_SIZE-1					;start from the end
+	std							;move backwards 
+	mov	al, 0
+	stosb							;null terminator for string
+	mov	ebx, [ebp+12]					;@ of # to be converted
+	mov	eax, [ebx]					;# to be converted
 
 convertLoop:				
-	mov		ebx, 10
-	mov		edx, 0
-	div		ebx
-	mov		ebx, eax					;save div result
-	add		edx, ASCII_0				;convert remainder to char
-	mov		al, dl
-	stosb								;store in string
-	mov		eax, ebx					;set up next step
-	cmp		eax, 0
-	je		stringRdy
-	jmp		convertLoop
+	mov	ebx, 10
+	mov	edx, 0
+	div	ebx
+	mov	ebx, eax					;save div result
+	add	edx, ASCII_0					;convert remainder to char
+	mov	al, dl
+	stosb							;store in string
+	mov	eax, ebx					;set up next step
+	cmp	eax, 0
+	je	stringRdy
+	jmp	convertLoop
 
 stringRdy:
-	inc		edi							;undo final auto-increment to get to beginning of str
+	inc	edi						;undo final auto-increment to get to beginning of str
 	displayString edi
-	popad								;restore registers
-	pop		ebp							;restore stack
-	ret		8
+	popad							;restore registers
+	pop	ebp						;restore stack
+	ret	8
 WriteVal ENDP
 
 
@@ -304,7 +304,7 @@ WriteVal ENDP
 Goodbye PROC
 	call	CrLf
 	call	CrLf
-	mov		edx, OFFSET bye
+	mov	edx, OFFSET bye
 	call	WriteString
 	call	CrLf
 	
