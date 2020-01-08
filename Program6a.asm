@@ -26,10 +26,10 @@ ASCII_9 = 57
 ; needs to be fed an OFFSET to work
 ;----------------------------------------------------------
 displayString	MACRO	buffer
-	push	edx					;Save edx register
-	mov		edx, buffer
+	push	edx						;Save edx register
+	mov	edx, buffer
 	call	WriteString
-	pop		edx					;Restore edx
+	pop	edx						;Restore edx
 ENDM
 
 ;----------------------------------------------------------
@@ -38,14 +38,14 @@ ENDM
 ; where the user's input will be stored
 ;----------------------------------------------------------
 getString	MACRO	display, inputLoc
-	displayString	display		;call displayString macro to show prompt
+	displayString	display					;call displayString macro to show prompt
 	push	ecx
 	push	edx
-	mov		edx, inputLoc 
-	mov		ecx, STR_SIZE
+	mov	edx, inputLoc 
+	mov	ecx, STR_SIZE
 	call	ReadString
-	pop		edx
-	pop		ecx
+	pop	edx
+	pop	ecx
 ENDM
 
 
